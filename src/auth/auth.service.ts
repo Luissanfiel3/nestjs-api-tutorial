@@ -3,10 +3,11 @@ import { PrismaService } from '../prisma/prisma.service';
 import * as argon from 'argon2';
 import { AuthDto } from './dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private config: ConfigService) {}
 
   async signup(dto: AuthDto) {
     // generate the password hash
@@ -22,7 +23,7 @@ export class AuthService {
 
       delete user.hash;
       // return the saved user
-      return user.hash;
+      return user;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
@@ -44,10 +45,7 @@ export class AuthService {
     if (!user) throw new ForbiddenException('Credentials incorrect');
 
     // compare password
-    const pwMatches = await argon.verify(
-      user.hash,
-      dto.password
-    );
+    const pwMatches = await argon.verify(user.hash, dto.password);
     // if password incorrect throw exception
     if (!pwMatches) throw new ForbiddenException('Credentials incorrect');
     delete user.hash;
