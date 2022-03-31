@@ -24,6 +24,8 @@ export class AuthService {
         },
       });
 
+      console.log(user);
+
       delete user.hash;
 
       //return the saved user
