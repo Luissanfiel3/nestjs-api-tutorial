@@ -12,6 +12,5 @@ export class PrismaService extends PrismaClient {
         },
       },
     });
-    //config.user.findMany();
   }
 }
