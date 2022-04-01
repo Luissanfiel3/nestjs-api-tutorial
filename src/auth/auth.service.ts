@@ -17,6 +17,8 @@ export class AuthService {
       const user = await this.prisma.user.create({
         data: {
           email: dto.email,
+          firstName: dto.firstName,
+          lastName: dto.lastName,
           hash,
         },
       });
@@ -51,4 +53,47 @@ export class AuthService {
     delete user.hash;
     return user;
   }
+
+  async findAllUsers() {
+    return this.prisma.user.findMany();
+  }
+
+  async updateUser(id, dto: AuthDto): Promise<object> {
+    try {
+      return this.prisma.user.update({
+        where: { id: Number(id) },
+        data: dto,
+      });
+    } catch (err) {
+
+    console.log(err)
+
+//       if (error instanceof PrismaClientKnownRequestError) {
+//         console.error('Código de error', error.code);
+//     /*     if (error.code === 'P2015') {
+//           throw new ForbiddenException('user to delete not found');
+//         } */
+//       }
+      //throw error;
+    }
+  }
+   async deleteUser(userId: number){
+
+      const user = await this.prisma.user.findUnique({
+          where: {
+          id: Number(userId)
+          },
+      });
+
+      if(!user)
+        throw new ForbiddenException (
+         'user to delete not found'
+        ),
+
+
+      await this.prisma.user.delete({
+           data: user
+      })
+
+   }
 }
