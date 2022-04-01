@@ -39,8 +39,9 @@ export class AuthController {
     return this.authService.updateUser(id, dto);
   }
 
+
   @Delete('user/:id')
-    async user(
+    async deleteUser(
       @Param('id') id: number
     ) {
       return this.authService.deleteUser(id);
