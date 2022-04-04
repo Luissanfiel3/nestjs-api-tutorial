@@ -3,11 +3,12 @@ import { PrismaService } from "../prisma/prisma.service";
 import * as argon from "argon2";
 import { AuthDto } from "./dto";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
+import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService, private config: ConfigService) {
+  constructor(private prisma: PrismaService, private jwt: JwtService, private config: ConfigService) {
   }
 
   async signup(dto: AuthDto) {
@@ -23,10 +24,8 @@ export class AuthService {
           hash
         }
       });
-
-      delete user.hash;
       // return the saved user
-      return user;
+      return this.signToken(user.id, user.email);
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === "P2002") {
@@ -51,52 +50,72 @@ export class AuthService {
     const pwMatches = await argon.verify(user.hash, dto.password);
     // if password incorrect throw exception
     if (!pwMatches) throw new ForbiddenException("Credentials incorrect");
-    delete user.hash;
-    return user;
+
+    return this.signToken(user.id, user.email);
   }
 
-  async findAllUsers() {
-    return this.prisma.user.findMany();
+  async signToken(userId: number, email: string): Promise<{ access_token: string }> {
+
+    const secret = this.config.get("JWT_SECRET");
+    const payload = {
+      sub: userId,
+      email,
+    };
+
+    const token = await this.jwt.signAsync(
+      payload,
+      {
+        expiresIn: '15m',
+        secret: secret,
+      }
+    );
+
+    return {
+      access_token: token,
+    };
   }
+}
 
-  async updateUser(id, dto: AuthDto): Promise<object> {
-    try {
-      return this.prisma.user.update({
-        where: { id: Number(id) },
-        data: dto
-      });
-    } catch (err) {
+/* async findAllUsers() {
+     return this.prisma.user.findMany();
+   }*/
 
-      console.log(err);
+/* async updateUser(id, dto: AuthDto): Promise<object> {
+   try {
+     return this.prisma.user.update({
+       where: { id: Number(id) },
+       data: dto
+     });
+   } catch (err) {
+
+     console.log(err);
 
 //       if (error instanceof PrismaClientKnownRequestError) {
 //         console.error('Código de error', error.code);
-//     /*     if (error.code === 'P2015') {
+//     /!*     if (error.code === 'P2015') {
 //           throw new ForbiddenException('user to delete not found');
-//         } */
+//         } *!/
 //       }
-      //throw error;
-    }
-  }
+     //throw error;
+   }
+ }
 
-  async deleteUser(userId: number) {
+ async deleteUser(userId: number) {
+   const user = await this.prisma.user.findUnique({
+     where: {
+       id: Number(userId)
+     }
+   });
+   console.log(userId);
+   if (!user)
+     throw new ForbiddenException(
+       "user to delete not found"
+     );
 
-    const user = await this.prisma.user.findUnique({
-      where: {
-        id: Number(userId)
-      }
-    });
-    console.log(user);
-    if (!user)
-      throw new ForbiddenException(
-        "user to delete not found"
-      ),
+   await this.prisma.user.delete({
+     where: {
+       id: Number(userId)
+     },
+   });
 
-
-        await this.prisma.user.delete({
-          where: {
-            id: Number(userId)
-          }
-        });
-  }
-}
+ }*/

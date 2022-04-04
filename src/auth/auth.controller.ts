@@ -6,44 +6,47 @@ import {
   Put,
   Param,
   Delete
-} from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthDto } from './dto';
+} from "@nestjs/common";
+import { AuthService } from "./auth.service";
+import { AuthDto } from "./dto";
+
 // import { User, Bookmark } from '@prisma/client';
 
-@Controller('auth')
+@Controller("auth")
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) {
+  }
 
-  @Post('signup')
+  @Post("signup")
   signup(@Body() dto: AuthDto) {
     console.log(dto);
     return this.authService.signup(dto);
   }
-  @Post('signin')
+
+  @Post("signin")
   signin(@Body() dto: AuthDto) {
     console.log(dto);
     return this.authService.signin(dto);
   }
 
-  @Get('users')
+ /* @Get("users")
   users() {
     return this.authService.findAllUsers();
-  }
+  }*/
 
-  @Put('user/:id')
+  /*@Put("user/:id")
   async user(
-    @Param('id') id: string,
-    @Body() dto: AuthDto,
+    @Param("id") id: string,
+    @Body() dto: AuthDto
   ): Promise<object> {
     return this.authService.updateUser(id, dto);
   }
 
 
-  @Delete('user/:id')
-    async deleteUser(
-      @Param('id') id: number
-    ) {
-      return this.authService.deleteUser(id);
-    }
+  @Delete("user/:id")
+  async deleteUser(
+    @Param("id") id: number
+  ) {
+    return this.authService.deleteUser(id);
+  }*/
 }
