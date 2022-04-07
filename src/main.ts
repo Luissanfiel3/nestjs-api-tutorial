@@ -10,6 +10,19 @@ async function bootstrap() {
       `Our app is running on port ${PORT}`,
     );
   });
+  
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+    }),
+  );
+
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(
+      `Our app is running on port ${PORT}`,    );
+  });
+
 }
 
 bootstrap();
