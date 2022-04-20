@@ -25,6 +25,7 @@ model User {
    @@map("users")
 }
 
+
 model Bookmark {
  id Int @id @default(autoincrement())
   createdAt DateTime @default(now())
@@ -35,6 +36,6 @@ model Bookmark {
   link        String
 
   userId Int
-  user   User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@map("bookmarks")
 }
