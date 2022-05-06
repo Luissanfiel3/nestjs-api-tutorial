@@ -41,7 +41,7 @@ describe("App a2e", () => {
 
 });
 
-describe("Auth", () => {
+/*describe("Auth", () => {
 
   describe("Signup", () => {
     const  dto: AuthDto = {
@@ -55,7 +55,7 @@ describe("Auth", () => {
     it.todo("Should Signin");
   });
 
-});
+});*/
 
 describe("User", () => {
   describe("Get me", () => {
